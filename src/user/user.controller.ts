@@ -19,13 +19,13 @@ export class UserController {
 
   @Get('/')
   async getAllUsers() {
-    const users = this.userService.getUsers();
+    const users = await this.userService.getUsers();
     return users;
   }
 
   @Get('/:userId')
   async getUserInfo(@Param() param: { userId: string }) {
-    const user = this.userService.getOneUser(param.userId);
+    const user = await this.userService.getOneUser(param.userId);
     return user;
   }
 
