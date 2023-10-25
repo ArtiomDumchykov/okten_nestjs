@@ -9,9 +9,10 @@ import {
   Post,
   Res,
 } from '@nestjs/common';
-import { UserService } from './user.service';
-import { UserCreateProfileDto } from './dto';
 import { Response } from 'express';
+
+import { UserCreateProfileDto } from './dto';
+import { UserService } from './user.service';
 
 @Controller('user')
 export class UserController {
