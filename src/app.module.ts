@@ -1,5 +1,3 @@
-import * as path from 'node:path';
-
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
@@ -9,7 +7,7 @@ import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
 import { AuthService } from './auth/auth.service';
 import { CustomConfigModule } from './config/config.module';
-import { CustomConfigService } from './config/config.service';
+import { TypeOrmConfiguration } from './config/tyoe-orm-configuration';
 import { UserController } from './user/user.controller';
 import { UserModule } from './user/user.module';
 import { UserService } from './user/user.service';
@@ -17,24 +15,7 @@ import { UserService } from './user/user.service';
 @Module({
   imports: [
     CustomConfigModule,
-    TypeOrmModule.forRootAsync({
-      imports: [CustomConfigModule],
-      useFactory: (customConfigService: CustomConfigService) => {
-        return {
-          type: 'postgres',
-          host: customConfigService.db_host,
-          port: customConfigService.db_port,
-          username: customConfigService.db_username,
-          password: customConfigService.db_password,
-          database: customConfigService.db_database,
-          synchronize: true,
-          entities: [
-            path.join(__dirname, 'database', '**', '*.entity{.ts,.js}'),
-          ],
-        };
-      },
-      inject: [CustomConfigService],
-    }),
+    TypeOrmModule.forRootAsync(TypeOrmConfiguration.config),
     UserModule,
     AuthModule,
   ],
