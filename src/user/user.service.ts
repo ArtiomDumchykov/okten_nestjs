@@ -5,7 +5,7 @@ import { UserCreateProfileDto } from './dto';
 @Injectable()
 export class UserService {
   private users: UserCreateProfileDto[] = [
-    { id: '0', userName: 'Artem', age: 24, status: true },
+    { id: '0', userName: 'Artem', city: 'Kharkiv', age: 24, status: true },
   ];
   private count: number = 1;
 

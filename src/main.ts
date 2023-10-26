@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from './app.module';
-// import { configs } from './config';
 import { CustomConfigService } from './config/config.service';
 
 async function bootstrap() {
