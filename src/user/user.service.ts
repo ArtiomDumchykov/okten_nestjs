@@ -42,7 +42,8 @@ export class UserService {
   }
 
   async getUsers() {
-    return this.users;
+    // return this.users;
+    return await this.userRepository.find();
   }
 
   async deletedUser(userId: string) {
