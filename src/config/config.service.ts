@@ -26,7 +26,6 @@ export class CustomConfigService {
     return this.configs.db_password;
   }
   get db_database(): string {
-    console.log(this.configs.db_database);
     return this.configs.db_database;
   }
 }
