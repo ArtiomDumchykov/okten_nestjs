@@ -1,27 +1,44 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 
-import { UserCreateProfileDto } from './dto';
+import { UserCreateProfileDto } from './dto/user.dto';
+import { UserRepository } from './user.repository';
 
 @Injectable()
 export class UserService {
-  private users: UserCreateProfileDto[] = [
-    { id: '0', userName: 'Artem', city: 'Kharkiv', age: 24, status: true },
-  ];
+  private users = [];
   private count: number = 1;
 
-  constructor() {}
+  constructor(private readonly userRepository: UserRepository) {}
 
   getUserHello(): string {
     return '<h1>Hello User</h1>';
   }
-  async createUser(user: Omit<UserCreateProfileDto, 'id'>) {
-    const id = this.count++;
-    const createdUser = { id: id.toString(), ...user };
-    this.users.push(createdUser);
-    return createdUser;
+
+  async createUser(userDto: UserCreateProfileDto) {
+    const userEmail = userDto.email.trim();
+
+    const findUser = await this.userRepository.findOne({
+      where: { email: userEmail },
+    });
+
+    if (findUser) {
+      throw new HttpException('User already exist', HttpStatus.BAD_REQUEST);
+    }
+
+    try {
+      const newUser = this.userRepository.create(userDto);
+
+      if (!userDto.city) {
+        newUser.city = 'Kharkiv';
+      }
+
+      return await this.userRepository.save(newUser);
+    } catch (error) {
+      throw new HttpException('Create user failed', HttpStatus.BAD_REQUEST);
+    }
   }
   async getOneUser(userId: string) {
-    return this.users.find((item) => item.id === userId);
+    return this.users.find((item) => item?.id === userId);
   }
 
   async getUsers() {
@@ -29,6 +46,6 @@ export class UserService {
   }
 
   async deletedUser(userId: string) {
-    this.users = this.users.filter((item) => item.id !== userId);
+    this.users = this.users.filter((item) => item?.id !== userId);
   }
 }

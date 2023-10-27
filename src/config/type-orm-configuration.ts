@@ -1,7 +1,8 @@
-import * as path from 'node:path';
+// import * as path from 'node:path';
 
 import { TypeOrmModuleAsyncOptions } from '@nestjs/typeorm';
 
+import { UserEntity } from '../database/entities/user.entity';
 import { CustomConfigModule } from './config.module';
 import { CustomConfigService } from './config.service';
 
@@ -19,7 +20,8 @@ export class TypeOrmConfiguration {
           database: customConfigService.db_database,
           synchronize: true,
           entities: [
-            path.join(__dirname, 'database', '**', '*.entity{.ts,.js}'),
+            // path.join(__dirname, 'database', '**', '*.entity{.ts,.js}'),
+            UserEntity,
           ],
         };
       },

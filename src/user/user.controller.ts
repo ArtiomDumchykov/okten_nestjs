@@ -9,16 +9,20 @@ import {
   Post,
   Res,
 } from '@nestjs/common';
+import { ApiExtraModels, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 
-import { UserCreateProfileDto } from './dto';
+import { UserEntity } from '../database/entities/user.entity';
+import { UserCreateProfileDto, UserCreateResponse } from './dto/user.dto';
 import { UserService } from './user.service';
 
+@ApiTags('User')
+@ApiExtraModels(UserCreateResponse)
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get('/')
+  @Get()
   async getAllUsers() {
     const users = await this.userService.getUsers();
     return users;
@@ -30,13 +34,14 @@ export class UserController {
     return user;
   }
 
+  @ApiResponse({ status: HttpStatus.CREATED, type: UserEntity })
   @Post('/create')
   async createUser(
-    @Body() body: Omit<UserCreateProfileDto, 'id'>,
-    @Res() res: Response<UserCreateProfileDto>,
+    @Body() body: UserCreateProfileDto,
+    @Res() res: Response<any>,
   ) {
     const createdUser = await this.userService.createUser(body);
-    return res.status(HttpStatus.CREATED).json({ ...createdUser });
+    return res.status(HttpStatus.CREATED).json(createdUser);
   }
 
   @Patch('/:userId')
