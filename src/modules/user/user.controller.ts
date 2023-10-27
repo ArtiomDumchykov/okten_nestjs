@@ -9,15 +9,14 @@ import {
   Post,
   Res,
 } from '@nestjs/common';
-import { ApiExtraModels, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 
-import { UserEntity } from '../database/entities/user.entity';
-import { UserCreateProfileDto, UserCreateResponse } from './dto/user.dto';
+import { UserEntity } from '../../database/entities/user.entity';
+import { UserCreateProfileDto } from './dto/user.dto';
 import { UserService } from './user.service';
 
 @ApiTags('User')
-@ApiExtraModels(UserCreateResponse)
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}

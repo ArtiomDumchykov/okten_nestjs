@@ -8,7 +8,7 @@ import { CustomConfigService } from './config/config.service';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
   const { port: PORT } = app.get(CustomConfigService);
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
   const configSwagger = new DocumentBuilder()
     .setTitle('Okten')
