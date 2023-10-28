@@ -3,17 +3,24 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   HttpStatus,
   Param,
-  Patch,
   Post,
+  Put,
+  Query,
   Res,
 } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 
 import { UserEntity } from '../../database/entities/user.entity';
+import { UserListQueryRequestDto } from './dto/request/user-list.query.request.dto';
+import { UserUpdateRequestDto } from './dto/request/user-update.request.dto';
+import { UserDetailsResponseDto } from './dto/response/user-details.response.dto';
+import { UserListResponseDto } from './dto/response/user-list-response.dto';
 import { UserCreateProfileDto } from './dto/user.dto';
+import { UserResponseMapper } from './user.response.mapper';
 import { UserService } from './user.service';
 
 @ApiTags('User')
@@ -21,16 +28,22 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @ApiOperation({ summary: 'Get list of users' })
   @Get()
-  async getAllUsers() {
-    const users = await this.userService.getUsers();
-    return users;
+  async getAllUsers(
+    @Query() query: UserListQueryRequestDto,
+  ): Promise<UserListResponseDto> {
+    const users = await this.userService.getAllUsers(query);
+    return UserResponseMapper.toListDto(users, query);
   }
 
-  @Get('/:userId')
-  async getUserInfo(@Param() param: { userId: string }) {
-    const user = await this.userService.getOneUser(param.userId);
-    return user;
+  @ApiOperation({ summary: 'Get user by id' })
+  @Get(':userId')
+  async getUserInfo(
+    @Param('userId') userId: string,
+  ): Promise<UserDetailsResponseDto> {
+    const user = await this.userService.getUsersById(userId);
+    return UserResponseMapper.toDetailsDto(user);
   }
 
   @ApiResponse({ status: HttpStatus.CREATED, type: UserEntity })
@@ -43,15 +56,22 @@ export class UserController {
     return res.status(HttpStatus.CREATED).json(createdUser);
   }
 
-  @Patch('/:userId')
-  async updateUser() {}
+  @ApiOperation({ summary: 'Update user by id' })
+  @Put(':userId')
+  async updateUser(
+    @Param('userId') userId: string,
+    @Body() body: UserUpdateRequestDto,
+  ): Promise<UserDetailsResponseDto> {
+    const user = await this.userService.updateUser(userId, body);
+    return UserResponseMapper.toDetailsDto(user);
+  }
 
-  @Delete('/:userId')
-  async deleteUser(
-    @Param() param: { userId: string },
-    @Res() res: Response<void>,
-  ) {
-    this.userService.deletedUser(param.userId);
-    return res.sendStatus(HttpStatus.NO_CONTENT);
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete user by id' })
+  @Delete(':userId')
+  async deleteUser(@Param('userId') userId: string): Promise<void> {
+    this.userService.deletedUser(userId);
+
+    await this.userService.deletedUser(userId);
   }
 }

@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-import { CreatedUpdatedModel } from './common/created-updated.model';
+import { CreatedUpdatedModel } from '../../common/created-updated.model';
 
 @Entity('user')
 export class UserEntity extends CreatedUpdatedModel {

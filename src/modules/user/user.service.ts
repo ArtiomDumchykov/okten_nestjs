@@ -1,6 +1,14 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UnprocessableEntityException,
+} from '@nestjs/common';
+import { IList } from 'src/common/interface/list.interface';
+import { UserEntity } from 'src/database/entities/user.entity';
 
-import { UserCreateProfileDto } from './dto/user.dto';
+import { UserListQueryRequestDto } from './dto/request/user-list.query.request.dto';
+import { UserCreateProfileDto, UserUpdateDto } from './dto/user.dto';
 import { UserRepository } from './user.repository';
 
 @Injectable()
@@ -12,6 +20,16 @@ export class UserService {
 
   getUserHello(): string {
     return '<h1>Hello User</h1>';
+  }
+
+  async getAllUsers(
+    query: UserListQueryRequestDto,
+  ): Promise<IList<UserEntity>> {
+    return await this.userRepository.getAllUsers(query);
+  }
+
+  async getUsersById(userId: string): Promise<UserEntity> {
+    return await this.findUserByIdOrException(userId);
   }
 
   async createUser(userDto: UserCreateProfileDto) {
@@ -37,16 +55,26 @@ export class UserService {
       throw new HttpException('Create user failed', HttpStatus.BAD_REQUEST);
     }
   }
-  async getOneUser(userId: string) {
-    return this.users.find((item) => item?.id === userId);
+
+  async updateUser(userId: string, dto: UserUpdateDto): Promise<UserEntity> {
+    const entity = await this.findUserByIdOrException(userId);
+
+    this.userRepository.merge(entity, dto);
+    return await this.userRepository.save(entity);
   }
 
-  async getUsers() {
-    // return this.users;
-    return await this.userRepository.find();
+  async deletedUser(userId: string): Promise<void> {
+    const entity = await this.findUserByIdOrException(userId);
+    await this.userRepository.remove(entity);
   }
 
-  async deletedUser(userId: string) {
-    this.users = this.users.filter((item) => item?.id !== userId);
+  private async findUserByIdOrException(userId: string): Promise<UserEntity> {
+    const user = await this.userRepository.findOneBy({ id: userId });
+
+    if (!user) {
+      throw new UnprocessableEntityException('User entity not found');
+    }
+
+    return user;
   }
 }
